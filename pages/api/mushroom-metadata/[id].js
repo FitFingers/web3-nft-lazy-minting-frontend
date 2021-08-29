@@ -15,8 +15,7 @@ const getMushroomMetadata = async (req, res) => {
       name: tokenName,
       description: "Satoshi Shrooms",
       tokenId: parseInt(tokenId),
-      image:
-        "https://image.shutterstock.com/image-vector/amanita-mushroom-pixel-art-vector-600w-1075018124.jpg",
+      image: trait.imageIPFS,
       // image: `https://gateway.pinata.cloud/ipfs/${trait["imageIPFS"]}`,
       external_url: "https://satoshishrooms.club",
       attributes: [
