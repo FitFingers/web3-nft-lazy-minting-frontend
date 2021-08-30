@@ -9,7 +9,7 @@
 }
 
 .main {
-  padding: 5rem 0;
+  padding: 0 0 5rem;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -31,6 +31,31 @@
   justify-content: center;
   align-items: center;
   flex-grow: 1;
+}
+
+.titleWrapper {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: fit-content;
+  color: #fafafa;
+  background: -webkit-linear-gradient(
+    27deg,
+    #caeef6 18%,
+    #efca00,
+    #f4acee,
+    #8fc991
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: saturate(2);
 }
 
 .title a {
@@ -79,22 +104,70 @@
 }
 
 .card {
+  position: relative;
   margin: 1rem;
-  padding: 1.5rem;
+  padding: 4px;
   text-align: left;
   color: inherit;
   text-decoration: none;
   border: 1px solid #eaeaea;
   border-radius: 10px;
-  transition: color 0.15s ease, border-color 0.15s ease;
+  /* transition: color 0.15s ease, border-color 0.15s ease; */
   width: 45%;
+  cursor: pointer;
+  box-shadow: 0 0 2px 0 #0002, 0 0 8px 1px #0001;
 }
 
-.card:hover,
-.card:focus,
-.card:active {
-  color: #0070f3;
-  border-color: #0070f3;
+.card:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  border-radius: inherit;
+  /* transition: all 250ms; */
+  background: #0070f3;
+}
+
+.card:hover:before {
+  background: -webkit-linear-gradient(
+    27deg,
+    #caeef6 18%,
+    #efca00,
+    #f4acee,
+    #8fc991
+  );
+}
+
+.cardBg {
+  background: #fafafa;
+  border-radius: 8px;
+}
+
+.cardInner {
+  position: relative;
+  padding: calc(1.5rem - 4px);
+  border-radius: 8px;
+  box-shadow: inset 0 0 8px 2px #0003, inset 0 0 2px 0px #0004;
+  background: white;
+}
+
+.cardInner:hover,
+.cardInner:focus,
+.cardInner:active {
+  background: -webkit-linear-gradient(
+    27deg,
+    #caeef6 18%,
+    #efca00,
+    #f4acee,
+    #8fc991
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: brightness(0.6) saturate(3);
 }
 
 .card h2 {
@@ -111,6 +184,15 @@
 .logo {
   height: 1em;
   margin-left: 0.5rem;
+}
+
+.fullWidth {
+  margin: auto -0.5rem;
+  position: relative;
+}
+
+.bannerImage {
+  filter: brightness(0.5) !important;
 }
 
 @media (max-width: 600px) {
