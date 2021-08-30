@@ -193,11 +193,29 @@
 
 .bannerImage {
   filter: brightness(0.5) !important;
+  /* min-height: 25vh;
+  height: 100%;
+  width: 100vw;
+  margin: 0; */
 }
 
 @media (max-width: 600px) {
   .grid {
     width: 100%;
     flex-direction: column;
+  }
+
+  .title {
+    margin: 0;
+    line-height: 1.15;
+    font-size: 2.25rem;
+  }
+
+  .description {
+    font-size: 1rem;
+  }
+
+  .card {
+    width: auto;
   }
 }

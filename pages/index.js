@@ -15,12 +15,16 @@ export default function Home() {
 
       <main className={classes.main}>
         <div className={classes.fullWidth}>
-          <Image
-            alt="Satoshi Shrooms banner image"
-            src={MushroomBanner}
-            placeholder="blur"
-            className={classes.bannerImage}
-          />
+          {/* <div className={classes.bannerImage}> */}
+            <Image
+              alt="Satoshi Shrooms banner image"
+              src={MushroomBanner}
+              placeholder="blur"
+              // objectFit="cover"
+              // layout="fill"
+              className={classes.bannerImage}
+            />
+          {/* </div> */}
           <div className={classes.titleWrapper}>
             <h1 className={classes.title}>Satoshi Shrooms</h1>
             <p className={classes.description}>TestNet Implementation</p>
@@ -53,22 +57,8 @@ export default function Home() {
       </main>
 
       <footer className={classes.footer}>
-        <Link
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <>
-            Powered by{" "}
-            <span className={classes.logo}>
-              <Image
-                src="/vercel.svg"
-                alt="Vercel Logo"
-                width={72}
-                height={16}
-              />
-            </span>
-          </>
+        <Link passHref href="/">
+          <p>Satoshi Shrooms {new Date().getFullYear()}</p>
         </Link>
       </footer>
     </div>
