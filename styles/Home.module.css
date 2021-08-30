@@ -219,6 +219,49 @@
   width: -webkit-fill-available;
 }
 
+.counter {
+  display: flex;
+  border: 1px solid black;
+  border-radius: 4px;
+  width: 100%;
+  max-width: 320px;
+  background: -webkit-linear-gradient(
+    27deg,
+    #caeef666 18%,
+    #efca0066,
+    #f4acee66,
+    #8fc99166
+  );
+}
+
+.display {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: #fff6;
+}
+
+.counterButton {
+  cursor: pointer;
+  flex-shrink: 1;
+  padding: 0.5rem 1rem;
+  background: #0001;
+  transition: all 200ms;
+}
+
+.counterButton:hover {
+  background: #0003;
+}
+
+.more {
+  border-left: 1px solid black;
+}
+
+.less {
+  border-right: 1px solid black;
+}
+
 .button {
   cursor: pointer;
   width: 100%;
