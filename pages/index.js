@@ -1,54 +1,35 @@
+import { useCallback, useReducer } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import classes from "styles/Home.module.css";
 import MushroomBanner from "public/mushroom-banner.png";
-import { useCallback, useEffect, useState } from "react";
-
-// ===================================================
-// METAMASK
-// ===================================================
-
-import Web3 from "web3";
-
-function useMetaMask() {
-  const [account, setAccount] = useState(null);
-
-  useEffect(() => {
-    async function connectWallet() {
-      try {
-        window.web3 = new Web3(window.ethereum);
-        const accounts = await window.web3.eth.requestAccounts(); // connect to wallet
-        const network = await window.web3.eth.net.getChainId(); // 0x4 is Rinkeby
-        console.log("DEBUG web3", { network, accounts });
-      } catch (err) {
-        console.debug("ERROR: couldn't initialise web3", { err });
-      }
-    }
-    connectWallet();
-  }, []);
-
-  return { account };
-}
-
-// ===================================================
-// ===================================================
+import useMetaMask from "hooks/useMetaMask";
 
 export default function Home() {
-  const [mintCount, setMintCount] = useState(1);
-  const handleClickLess = useCallback(() => setMintCount((c) => c - 1), []);
-  const handleClickMore = useCallback(() => setMintCount((c) => c + 1), []);
+  const [{ mintCount, writeCount }, dispatch] = useReducer(
+    (state, moreState) => ({ ...state, ...moreState }),
+    { mintCount: 1, writeCount: 0 }
+  );
 
-  const mint = useCallback(() => {
-    console.log("DEBUG", { mintCount });
-  }, [mintCount]);
+  const handleMintLess = useCallback(
+    () => dispatch({ mintCount: (mintCount - 1) % 10 }),
+    [mintCount]
+  );
+  const handleMintMore = useCallback(
+    () => dispatch({ mintCount: (mintCount + 1) % 10 }),
+    [mintCount]
+  );
+  const handleWriteLess = useCallback(
+    () => dispatch({ writeCount: (writeCount - 1) % 10 }),
+    [writeCount]
+  );
+  const handleWriteMore = useCallback(
+    () => dispatch({ writeCount: (writeCount + 1) % 10 }),
+    [writeCount]
+  );
 
-  const { account } = useMetaMask();
-
-  // TODO: REMOVE => DEBUG ONLY
-  useEffect(() => {
-    console.log("DEBUG metamask", { account });
-  }, [account]);
+  const { connectWallet, mint, getCount, setCount } = useMetaMask();
 
   return (
     <div className={classes.container}>
@@ -57,6 +38,14 @@ export default function Home() {
         <meta name="description" content="Satoshi Shrooms" />
         <link rel="icon" href="/favicon.png" />
       </Head>
+
+      <div className={classes.connectButton} onClick={connectWallet}>
+        <span>
+          Connect
+          <br />
+          Wallet
+        </span>
+      </div>
 
       <main className={classes.main}>
         {/* BANNER */}
@@ -119,14 +108,14 @@ export default function Home() {
               <div className={classes.counter}>
                 <div
                   className={[classes.less, classes.counterButton].join(" ")}
-                  onClick={handleClickLess}
+                  onClick={handleMintLess}
                 >
                   -
                 </div>
                 <div className={classes.display}>{mintCount}</div>
                 <div
                   className={[classes.more, classes.counterButton].join(" ")}
-                  onClick={handleClickMore}
+                  onClick={handleMintMore}
                 >
                   +
                 </div>
@@ -136,12 +125,37 @@ export default function Home() {
                 <span>Mint</span>
               </button>
             </div>
+
             <div className={classes.tile}>
-              <h3>Here you can mint your own Satoshi Shroom</h3>
+              <h3>Another, separate smart contract</h3>
               <p>
-                Just connect your metamask, select the number to mint and click
-                the button!
+                Here you can read and write to this smart contract&apos;s
+                counter
               </p>
+
+              <button className={classes.button} onClick={getCount}>
+                <span>Read</span>
+              </button>
+
+              <div className={classes.counter}>
+                <div
+                  className={[classes.less, classes.counterButton].join(" ")}
+                  onClick={handleWriteLess}
+                >
+                  -
+                </div>
+                <div className={classes.display}>{writeCount}</div>
+                <div
+                  className={[classes.more, classes.counterButton].join(" ")}
+                  onClick={handleWriteMore}
+                >
+                  +
+                </div>
+              </div>
+
+              <button className={classes.button} onClick={setCount}>
+                <span>Write</span>
+              </button>
             </div>
           </div>
         </div>

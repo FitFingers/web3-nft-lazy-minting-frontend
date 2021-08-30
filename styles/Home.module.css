@@ -22,10 +22,41 @@
   font-size: 1.825rem;
 }
 
+.connectButton {
+  position: fixed;
+  z-index: 999;
+  border-radius: 10px;
+  box-shadow: 0 0 2px 0 #0004, 0 0 8px 1px #0002, 0 0 16px #0003;
+  top: 1rem;
+  right: 1rem;
+  padding: 1rem;
+  text-align: center;
+  cursor: pointer;
+  color: #000c;
+  transition: all 250ms;
+  /* line-height: 1.15rem; */
+  background: -webkit-linear-gradient(
+    27deg,
+    #caeef6 18%,
+    #efca00,
+    #f4acee,
+    #8fc991
+  );
+}
+
+.connectButton:hover {
+  transform: scale(1.01);
+  box-shadow: 0 0 2px 0 #0004, 0 0 8px 1px #0002, 0 0 16px #0003,
+    0 2px 7px 1px #0003;
+}
+
+.connectButton > span {
+  display: block;
+}
+
 .footer {
   width: 100%;
   height: 56px;
-  /* border-top: 1px solid #eaeaea; */
   background: #f4acee;
   margin: auto -0.5rem;
   width: -webkit-fill-available;
@@ -227,6 +258,7 @@
   border-radius: 4px;
   width: 100%;
   max-width: 320px;
+  margin: 1.5rem auto 0;
   background: -webkit-linear-gradient(
     27deg,
     #caeef666 18%,
