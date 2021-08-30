@@ -6,8 +6,8 @@ const getMushroomMetadata = async (req, res) => {
 
   if (parseInt(tokenId) < totalMushrooms) {
     const tokenName = `#${tokenId}`;
-    const trait = traits[parseInt(tokenId)];
-    // const trait = traits[ Math.floor(Math.random() * 8888) ] // for testing on rinkeby
+    const mushroom = traits[parseInt(tokenId)];
+    // const mushroom = traits[ Math.floor(Math.random() * 8888) ] // for testing on rinkeby
 
     // CHECK OPENSEA METADATA STANDARD DOCUMENTATION https://docs.opensea.io/docs/metadata-standards
     let metadata = {};
@@ -15,37 +15,37 @@ const getMushroomMetadata = async (req, res) => {
       name: tokenName,
       description: "Satoshi Shrooms",
       tokenId: parseInt(tokenId),
-      image: trait.imageIPFS,
-      // image: `https://gateway.pinata.cloud/ipfs/${trait["imageIPFS"]}`,
+      image: mushroom.imageIPFS,
+      // image: `https://gateway.pinata.cloud/ipfs/${mushroom.imageIPFS}`,
       external_url: "https://satoshishrooms.club",
       attributes: [
         {
           Background: "Background",
-          value: trait["Background"],
+          value: mushroom.Background,
         },
         {
           Color: "Color",
-          value: trait["Color"],
+          value: mushroom.Color,
         },
         {
           Spots: "Spots",
-          value: trait["Spots"],
+          value: mushroom.Spots,
         },
         {
           Environment: "Environment",
-          value: trait["Environment"],
+          value: mushroom.Environment,
         },
         {
           Toxicity: "Toxicity",
-          value: trait["Toxicity"],
+          value: mushroom.Toxicity,
         },
         {
           Species: "Species",
-          value: trait["Species"],
+          value: mushroom.Species,
         },
         {
           Magic: "Magic",
-          value: trait["Magic"],
+          value: mushroom.Magic,
         },
       ],
     };
