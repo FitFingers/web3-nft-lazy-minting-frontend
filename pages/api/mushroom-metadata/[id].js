@@ -22,31 +22,31 @@ const getMushroomMetadata = async (req, res) => {
       external_url: "https://satoshishrooms.club",
       attributes: [
         {
-          Background: "Background",
+          trait_type: "Background",
           value: mushroom.Background,
         },
         {
-          Color: "Color",
+          trait_type: "Color",
           value: mushroom.Color,
         },
         {
-          Spots: "Spots",
+          trait_type: "Spots",
           value: mushroom.Spots,
         },
         {
-          Environment: "Environment",
+          trait_type: "Environment",
           value: mushroom.Environment,
         },
         {
-          Toxicity: "Toxicity",
+          trait_type: "Toxicity",
           value: mushroom.Toxicity,
         },
         {
-          Species: "Species",
+          trait_type: "Species",
           value: mushroom.Species,
         },
         {
-          Magic: "Magic",
+          trait_type: "Magic",
           value: mushroom.Magic,
         },
       ],
