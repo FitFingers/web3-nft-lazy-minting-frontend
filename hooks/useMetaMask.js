@@ -1,27 +1,20 @@
 import Web3 from "web3";
-import { useCallback, useEffect, useReducer } from "react";
-import ABI from "utils/abi";
+import { useCallback, useEffect, useMemo, useReducer } from "react";
+import SHROOMS_ABI from "utils/abi";
 import COUNTER_ABI from "utils/counter-abi"; // TODO: remove
+
+const isDev = process.env.NODE_ENV === "development";
 
 const COUNTER_CONTRACT_ADDRESS =
   process.env.NEXT_PUBLIC_COUNTER_CONTRACT_ADDRESS; // TODO: remove
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
-// const MNEMONIC = process.env.NEXT_PUBLIC_MNEMONIC;
-// const NODE_API_KEY =
-//   process.env.NEXT_PUBLIC_INFURA_KEY || process.env.NEXT_PUBLIC_ALCHEMY_KEY;
-// const OWNER_ADDRESS = process.env.NEXT_PUBLIC_OWNER_ADDRESS;
-// const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
+const SHROOMS_CONTRACT_ADDRESS =
+  process.env.NEXT_PUBLIC_SHROOMS_CONTRACT_ADDRESS;
 
 // ===================================================
 // METAMASK
 // ===================================================
 
 export default function useMetaMask(logChanges) {
-  // console.log("DEBUG env vars", {
-  //   COUNTER_CONTRACT_ADDRESS,
-  //   OWNER_ADDRESS,
-  // });
-
   // TODO: remove counterContract
   const [{ account, network, counterContract, contract }, dispatch] =
     useReducer((state, moreState) => ({ ...state, ...moreState }), {
@@ -46,27 +39,23 @@ export default function useMetaMask(logChanges) {
       console.log("Connecting to wallet...");
       const [acc] = await window.web3.eth.requestAccounts();
       dispatch({ account: acc });
+      const network = await window.web3.eth.net.getNetworkType();
+      dispatch({ network });
+      console.log("Connected.");
     } catch (err) {
       console.debug("ERROR: couldn't connect wallet", { err });
     }
   }, []);
 
-  // determine the network (0x4 => rinkeby)
-  const determineNetwork = useCallback(async () => {
-    try {
-      const network = await window.web3.eth.net.getChainId(); // 0x4 is Rinkeby
-      dispatch({ network });
-      console.log("Network:", network);
-    } catch (err) {
-      console.debug("DEBUG catch error", { err });
-    }
-  }, []);
-
   // create a contract instance
   useEffect(() => {
-    const contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS, {
-      // gasLimit: "1000000",
-    });
+    const contract = new web3.eth.Contract(
+      SHROOMS_ABI,
+      SHROOMS_CONTRACT_ADDRESS,
+      {
+        // gasLimit: "1000000",
+      }
+    );
 
     // TODO: remove
     const counterContract = new web3.eth.Contract(
@@ -78,7 +67,7 @@ export default function useMetaMask(logChanges) {
     );
 
     dispatch({ contract, counterContract });
-  }, [determineNetwork]);
+  }, []);
 
   const getPrice = useCallback(
     async () => contract.methods.mushroomPrice().call({ from: account }),
@@ -86,7 +75,7 @@ export default function useMetaMask(logChanges) {
   );
 
   const getMaxPurchase = useCallback(
-    async () => contract.methods.getMaxPurchase().call({ from: account }),
+    async () => contract.methods.maxMushroomPurchase().call({ from: account }),
     [account, contract.methods]
   );
 
@@ -102,19 +91,37 @@ export default function useMetaMask(logChanges) {
 
         const price = await getPrice();
         await contract.methods
-          .mint(n)
+          .mintSatoshiShroom(n)
           .send({
             from: account,
             value: n * price,
           })
-          .on("transactionHash", (hash) =>
-            console.log("DEBUG TX hash", { hash })
-          );
+          .on("transactionHash", (hash) => console.log("TX hash", { hash }));
       } catch (err) {
         console.log("ERROR: failed to call contract method (mint)", { err });
       }
     },
     [account, contract.methods, getMaxPurchase, getPrice]
+  );
+
+  // get this series' baseURI
+  const getBaseURI = useCallback(async () => {
+    const baseURI = await contract.methods.getBaseURI().call({ from: account });
+    console.log("BaseURI", { baseURI });
+    return baseURI;
+  }, [contract, account]);
+
+  // set this series' baseURI (for reveal)
+  const setBaseURI = useCallback(
+    async (str) => {
+      await contract.methods
+        .setBaseURI(str)
+        .send({ from: account, value: 1000000 })
+        .on("transactionHash", (hash) =>
+          console.log("setBaseURI TX hash", { hash })
+        );
+    },
+    [contract, account]
   );
 
   // ===================================================
@@ -141,9 +148,7 @@ export default function useMetaMask(logChanges) {
         await counterContract.methods
           .setCount(n)
           .send({ from: account, value: 1000000 })
-          .on("transactionHash", (hash) =>
-            console.log("DEBUG TX hash", { hash })
-          );
+          .on("transactionHash", (hash) => console.log("TX hash", { hash }));
       } catch (err) {
         console.log("ERROR: failed to call contract method (setCount)", {
           err,
@@ -163,9 +168,10 @@ export default function useMetaMask(logChanges) {
       console.log("useMetaMask", {
         getCount,
         setCount,
+        getBaseURI,
+        setBaseURI,
         connectWallet,
         mint,
-        determineNetwork,
         network,
         account,
         counterContract,
@@ -173,10 +179,11 @@ export default function useMetaMask(logChanges) {
       });
   }, [
     account,
+    getBaseURI,
+    setBaseURI,
     connectWallet,
     contract,
     counterContract,
-    determineNetwork,
     getCount,
     logChanges,
     mint,
@@ -184,5 +191,13 @@ export default function useMetaMask(logChanges) {
     setCount,
   ]);
 
-  return { connectWallet, mint, determineNetwork, getCount, setCount };
+  return {
+    connectWallet,
+    network,
+    account,
+    mint,
+    getCount,
+    setCount,
+    ...(isDev ? { getBaseURI, setBaseURI } : {}),
+  };
 }

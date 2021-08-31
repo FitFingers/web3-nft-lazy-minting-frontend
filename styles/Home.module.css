@@ -34,6 +34,7 @@
   cursor: pointer;
   color: #000c;
   transition: all 250ms;
+  text-transform: capitalize;
   /* line-height: 1.15rem; */
   background: -webkit-linear-gradient(
     27deg,
@@ -326,8 +327,31 @@
   box-shadow: 0 2px 7px 1px #0003;
 }
 
+.button[disabled] {
+  filter: brightness(1.2) contrast(0.5) opacity(0.5);
+  cursor: not-allowed;
+}
+
+.button[disabled]:hover {
+  transform: scale(1);
+  box-shadow: 0 0 6px 0 #0003;
+}
+
 .button:hover span {
   transform: none;
+}
+
+.buttonFlexWrapper {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  width: -webkit-fill-available;
+  max-width: calc(320px + 1rem);
+}
+
+.buttonFlexWrapper > * {
+  flex: 1;
+  margin: 1.5rem 0.5rem 0;
 }
 
 .minting {

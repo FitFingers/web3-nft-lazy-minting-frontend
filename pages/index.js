@@ -1,4 +1,4 @@
-import { useCallback, useReducer } from "react";
+import { useCallback, useMemo, useReducer } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,8 +6,24 @@ import classes from "styles/Home.module.css";
 import MushroomBanner from "public/mushroom-banner.png";
 import useMetaMask from "hooks/useMetaMask";
 
+const isDev = process.env.NODE_ENV === "development";
+
 export default function Home() {
-  const { connectWallet, network, mint, getCount, setCount } = useMetaMask(true);
+  const {
+    account,
+    network,
+    connectWallet,
+    mint,
+    getCount,
+    setCount,
+    getBaseURI,
+    setBaseURI,
+  } = useMetaMask();
+
+  const readyInteractive = useMemo(
+    () => account && network && network === "rinkeby",
+    [account, network]
+  );
 
   const [{ mintCount, writeCount }, dispatch] = useReducer(
     (state, moreState) => ({ ...state, ...moreState }),
@@ -31,9 +47,20 @@ export default function Home() {
     [writeCount]
   );
 
-  const callSetCount = useCallback(async () => {
-    await setCount(writeCount);
-  }, [setCount, writeCount]);
+  const callSetCount = useCallback(
+    async () => setCount(writeCount),
+    [setCount, writeCount]
+  );
+
+  const handleMint = useCallback(
+    async () => mint(mintCount),
+    [mint, mintCount]
+  );
+
+  const writeBaseURI = useCallback(async () => {
+    const str = window.prompt();
+    setBaseURI(str);
+  }, [setBaseURI]);
 
   return (
     <div className={classes.container}>
@@ -44,11 +71,7 @@ export default function Home() {
       </Head>
 
       <div className={classes.connectButton} onClick={connectWallet}>
-        <span>
-          Connect
-          <br />
-          Wallet
-        </span>
+        <span>{account && network ? network : "Connect Wallet"}</span>
       </div>
 
       <main className={classes.main}>
@@ -125,9 +148,32 @@ export default function Home() {
                 </div>
               </div>
 
-              <button className={classes.button}>
+              <button
+                disabled={!readyInteractive}
+                className={classes.button}
+                onClick={handleMint}
+              >
                 <span>Mint</span>
               </button>
+
+              {isDev && (
+                <div className={classes.buttonFlexWrapper}>
+                  <button
+                    disabled={!readyInteractive}
+                    className={classes.button}
+                    onClick={getBaseURI}
+                  >
+                    <span>Read</span>
+                  </button>
+                  <button
+                    disabled={!readyInteractive}
+                    className={classes.button}
+                    onClick={writeBaseURI}
+                  >
+                    <span>Write</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className={classes.tile}>
@@ -137,7 +183,11 @@ export default function Home() {
                 counter
               </p>
 
-              <button className={classes.button} onClick={getCount}>
+              <button
+                disabled={!readyInteractive}
+                className={classes.button}
+                onClick={getCount}
+              >
                 <span>Read</span>
               </button>
 
@@ -157,7 +207,11 @@ export default function Home() {
                 </div>
               </div>
 
-              <button className={classes.button} onClick={callSetCount}>
+              <button
+                disabled={!readyInteractive}
+                className={classes.button}
+                onClick={callSetCount}
+              >
                 <span>Write</span>
               </button>
             </div>
