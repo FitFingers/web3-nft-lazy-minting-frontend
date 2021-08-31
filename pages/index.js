@@ -29,7 +29,11 @@ export default function Home() {
     [writeCount]
   );
 
-  const { connectWallet, mint, getCount, setCount } = useMetaMask();
+  const { connectWallet, mint, getCount, setCount } = useMetaMask(true);
+
+  const callSetCount = useCallback(async () => {
+    await setCount(writeCount);
+  }, [setCount, writeCount]);
 
   return (
     <div className={classes.container}>
@@ -153,7 +157,7 @@ export default function Home() {
                 </div>
               </div>
 
-              <button className={classes.button} onClick={setCount}>
+              <button className={classes.button} onClick={callSetCount}>
                 <span>Write</span>
               </button>
             </div>

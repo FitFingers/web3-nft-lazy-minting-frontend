@@ -3,18 +3,25 @@ import { useCallback, useEffect, useReducer } from "react";
 import ABI from "utils/abi";
 import COUNTER_ABI from "utils/counter-abi"; // TODO: remove
 
-const COUNTER_CONTRACT_ADDRESS = process.env.COUNTER_CONTRACT_ADDRESS; // TODO: remove
-const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
-const MNEMONIC = process.env.MNEMONIC;
-const NODE_API_KEY = process.env.INFURA_KEY || process.env.ALCHEMY_KEY;
-const OWNER_ADDRESS = process.env.OWNER_ADDRESS;
-const NETWORK = process.env.NETWORK;
+const COUNTER_CONTRACT_ADDRESS =
+  process.env.NEXT_PUBLIC_COUNTER_CONTRACT_ADDRESS; // TODO: remove
+const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
+const MNEMONIC = process.env.NEXT_PUBLIC_MNEMONIC;
+const NODE_API_KEY =
+  process.env.NEXT_PUBLIC_INFURA_KEY || process.env.NEXT_PUBLIC_ALCHEMY_KEY;
+const OWNER_ADDRESS = process.env.NEXT_PUBLIC_OWNER_ADDRESS;
+const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
 
 // ===================================================
 // METAMASK
 // ===================================================
 
-export default function useMetaMask() {
+export default function useMetaMask(logChanges) {
+  // console.log("DEBUG env vars", {
+  //   COUNTER_CONTRACT_ADDRESS,
+  //   OWNER_ADDRESS,
+  // });
+
   // TODO: remove counterContract
   const [{ account, network, counterContract, contract }, dispatch] =
     useReducer((state, moreState) => ({ ...state, ...moreState }), {
@@ -57,7 +64,6 @@ export default function useMetaMask() {
 
   // create a contract instance
   useEffect(() => {
-    // determineNetwork().then(r => console.log('DEBUG', {r}))
     const contract = new web3.eth.Contract(ABI, CONTRACT_ADDRESS, {
       // gasLimit: "1000000",
     });
@@ -95,17 +101,20 @@ export default function useMetaMask() {
   // TODO: remove below
   // ===================================================
 
-  // test with counter contracts
+  // TODO: remove => WORKS
   const getCount = useCallback(async () => {
     try {
-      await counterContract.methods.getCount().call({ from: account });
+      const count = await counterContract.methods
+        .getCount()
+        .call({ from: account });
+      console.log("Count:", count);
+      return count;
     } catch (err) {
       console.log("ERROR: failed to call contract method (getCount)", { err });
     }
-  }, [account, counterContract.methods]);
+  }, [account, counterContract]);
 
   // TODO: remove
-  // test with counter contracts
   const setCount = useCallback(
     async (n = 0) => {
       try {
@@ -127,6 +136,33 @@ export default function useMetaMask() {
   // ===================================================
   // TODO: remove above
   // ===================================================
+
+  // log every change of variable
+  useEffect(() => {
+    if (logChanges)
+      console.log("useMetaMask", {
+        getCount,
+        setCount,
+        connectWallet,
+        mint,
+        determineNetwork,
+        network,
+        account,
+        counterContract,
+        contract,
+      });
+  }, [
+    account,
+    connectWallet,
+    contract,
+    counterContract,
+    determineNetwork,
+    getCount,
+    logChanges,
+    mint,
+    network,
+    setCount,
+  ]);
 
   return { connectWallet, mint, determineNetwork, getCount, setCount };
 }
