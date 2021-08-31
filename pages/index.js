@@ -71,7 +71,17 @@ export default function Home() {
       </Head>
 
       <div className={classes.connectButton} onClick={connectWallet}>
-        <span>{account && network ? network : "Connect Wallet"}</span>
+        <span>
+          {account && network ? (
+            network
+          ) : (
+            <>
+              Connect
+              <br />
+              Wallet
+            </>
+          )}
+        </span>
       </div>
 
       <main className={classes.main}>
