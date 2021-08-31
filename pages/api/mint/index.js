@@ -1,7 +1,7 @@
 const HDWalletProvider = require("truffle-hdwallet-provider");
 const web3 = require("web3");
 const SATOSHI_SHROOM_ABI = require("utils/abi");
-const functions = require("./functions");
+const runFunction = require("utils/runFunction");
 
 const MNEMONIC = process.env.MNEMONIC;
 const NODE_API_KEY = process.env.INFURA_KEY || process.env.ALCHEMY_KEY;
@@ -41,21 +41,21 @@ async function main() {
       // console.log("NFT METHODS", methods);
 
       // // MUSHROOM PRICE
-      // const mushroomPrice = await functions.runFunction(
+      // const mushroomPrice = await runFunction(
       //   "mushroomPrice",
       //   nftContract,
       //   { estimateGas: false }
       // );
 
       // // MAX # TO PURCHASE
-      // const maxMushroomPurchase = await functions.runFunction(
+      // const maxMushroomPurchase = await runFunction(
       //   "maxMushroomPurchase",
       //   nftContract,
       //   { estimateGas: false }
       // );
 
       // // PRINT BASE URI
-      // await functions.runFunction("getBaseURI", nftContract, {
+      // await runFunction("getBaseURI", nftContract, {
       //   estimateGas: false,
       // });
 
