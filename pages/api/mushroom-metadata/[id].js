@@ -15,10 +15,11 @@ const getMushroomMetadata = async (req, res) => {
       name: tokenName,
       description: "Satoshi Shrooms",
       tokenId: parseInt(tokenId),
+      image: `ipfs://QmUeE4LLjuMMAim96sQT15k7QmjnP8WcoqHxvs2gb4ms8h/${tokenId}.png`, // REAL
       // image: "ipfs://QmUeE4LLjuMMAim96sQT15k7QmjnP8WcoqHxvs2gb4ms8h/", // REAL
       // image: `https://gateway.pinata.cloud/ipfs/QmUeE4LLjuMMAim96sQT15k7QmjnP8WcoqHxvs2gb4ms8h/${tokenId}.png`,
-      image:
-        "https://image.shutterstock.com/image-vector/amanita-mushroom-pixel-art-vector-600w-1075018124.jpg", // FAKE
+      // image:
+      //   "https://image.shutterstock.com/image-vector/amanita-mushroom-pixel-art-vector-600w-1075018124.jpg", // FAKE
       // image: `https://gateway.pinata.cloud/ipfs/${mushroom.imageIPFS}`,
       external_url: "https://satoshishrooms.club",
       attributes: [
