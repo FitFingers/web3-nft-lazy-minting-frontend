@@ -9,25 +9,17 @@ import useMetaMask from "hooks/useMetaMask";
 const isDev = process.env.NODE_ENV === "development";
 
 export default function Home() {
-  const {
-    account,
-    network,
-    connectWallet,
-    mint,
-    getCount,
-    setCount,
-    getBaseURI,
-    setBaseURI,
-  } = useMetaMask();
+  const { account, network, connectWallet, mint, getBaseURI, setBaseURI } =
+    useMetaMask();
 
   const readyInteractive = useMemo(
     () => account && network && network === "rinkeby",
     [account, network]
   );
 
-  const [{ mintCount, writeCount }, dispatch] = useReducer(
+  const [{ mintCount }, dispatch] = useReducer(
     (state, moreState) => ({ ...state, ...moreState }),
-    { mintCount: 1, writeCount: 0 }
+    { mintCount: 1 }
   );
 
   const handleMintLess = useCallback(
@@ -37,19 +29,6 @@ export default function Home() {
   const handleMintMore = useCallback(
     () => dispatch({ mintCount: (mintCount + 1) % 10 }),
     [mintCount]
-  );
-  const handleWriteLess = useCallback(
-    () => dispatch({ writeCount: (writeCount - 1) % 10 }),
-    [writeCount]
-  );
-  const handleWriteMore = useCallback(
-    () => dispatch({ writeCount: (writeCount + 1) % 10 }),
-    [writeCount]
-  );
-
-  const callSetCount = useCallback(
-    async () => setCount(writeCount),
-    [setCount, writeCount]
   );
 
   const handleMint = useCallback(
@@ -184,46 +163,6 @@ export default function Home() {
                   </button>
                 </div>
               )}
-            </div>
-
-            <div className={classes.tile}>
-              <h3>Another, separate smart contract</h3>
-              <p>
-                Here you can read and write to this smart contract&apos;s
-                counter
-              </p>
-
-              <button
-                disabled={!readyInteractive}
-                className={classes.button}
-                onClick={getCount}
-              >
-                <span>Read</span>
-              </button>
-
-              <div className={classes.counter}>
-                <div
-                  className={[classes.less, classes.counterButton].join(" ")}
-                  onClick={handleWriteLess}
-                >
-                  -
-                </div>
-                <div className={classes.display}>{writeCount}</div>
-                <div
-                  className={[classes.more, classes.counterButton].join(" ")}
-                  onClick={handleWriteMore}
-                >
-                  +
-                </div>
-              </div>
-
-              <button
-                disabled={!readyInteractive}
-                className={classes.button}
-                onClick={callSetCount}
-              >
-                <span>Write</span>
-              </button>
             </div>
           </div>
         </div>

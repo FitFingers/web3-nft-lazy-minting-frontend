@@ -1,12 +1,9 @@
 import Web3 from "web3";
 import { useCallback, useEffect, useReducer } from "react";
 import SHROOMS_ABI from "utils/abi";
-import COUNTER_ABI from "utils/counter-abi"; // TODO: remove
 
 const isDev = process.env.NODE_ENV === "development";
 
-const COUNTER_CONTRACT_ADDRESS =
-  process.env.NEXT_PUBLIC_COUNTER_CONTRACT_ADDRESS; // TODO: remove
 const SHROOMS_CONTRACT_ADDRESS =
   process.env.NEXT_PUBLIC_SHROOMS_CONTRACT_ADDRESS;
 
@@ -15,14 +12,14 @@ const SHROOMS_CONTRACT_ADDRESS =
 // ===================================================
 
 export default function useMetaMask(logChanges) {
-  // TODO: remove counterContract
-  const [{ account, network, counterContract, contract }, dispatch] =
-    useReducer((state, moreState) => ({ ...state, ...moreState }), {
+  const [{ account, network, contract }, dispatch] = useReducer(
+    (state, moreState) => ({ ...state, ...moreState }),
+    {
       account: null,
       network: null,
-      counterContract: {},
       contract: {},
-    });
+    }
+  );
 
   // init web3
   useEffect(() => {
@@ -36,12 +33,12 @@ export default function useMetaMask(logChanges) {
   // connect to user's wallet
   const connectWallet = useCallback(async () => {
     try {
-      console.log("Connecting to wallet...");
+      console.debug("Connecting to wallet...");
       const [acc] = await window.web3.eth.requestAccounts();
       dispatch({ account: acc });
       const network = await window.web3.eth.net.getNetworkType();
       dispatch({ network });
-      console.log("Connected.");
+      console.debug("Connected.");
     } catch (err) {
       console.debug("ERROR: couldn't connect wallet", { err });
     }
@@ -51,22 +48,11 @@ export default function useMetaMask(logChanges) {
   useEffect(() => {
     const contract = new web3.eth.Contract(
       SHROOMS_ABI,
-      SHROOMS_CONTRACT_ADDRESS,
-      {
-        // gasLimit: "1000000",
-      }
+      SHROOMS_CONTRACT_ADDRESS
+      // { gasLimit: "1000000" }
     );
 
-    // TODO: remove
-    const counterContract = new web3.eth.Contract(
-      COUNTER_ABI,
-      COUNTER_CONTRACT_ADDRESS,
-      {
-        // gasLimit: "1000000",
-      }
-    );
-
-    dispatch({ contract, counterContract });
+    dispatch({ contract });
   }, []);
 
   const getPrice = useCallback(
@@ -96,9 +82,9 @@ export default function useMetaMask(logChanges) {
             from: account,
             value: n * price,
           })
-          .on("transactionHash", (hash) => console.log("TX hash", { hash }));
+          .on("transactionHash", (hash) => console.debug("TX hash", { hash }));
       } catch (err) {
-        console.log("ERROR: failed to call contract method (mint)", { err });
+        console.debug("ERROR: failed to call contract method (mint)", { err });
       }
     },
     [account, contract.methods, getMaxPurchase, getPrice]
@@ -107,7 +93,7 @@ export default function useMetaMask(logChanges) {
   // get this series' baseURI
   const getBaseURI = useCallback(async () => {
     const baseURI = await contract.methods.getBaseURI().call({ from: account });
-    console.log("BaseURI", { baseURI });
+    console.debug("BaseURI", { baseURI });
     return baseURI;
   }, [contract, account]);
 
@@ -118,63 +104,22 @@ export default function useMetaMask(logChanges) {
         .setBaseURI(str)
         .send({ from: account, value: 1000000 })
         .on("transactionHash", (hash) =>
-          console.log("setBaseURI TX hash", { hash })
+          console.debug("setBaseURI TX hash", { hash })
         );
     },
     [contract, account]
   );
 
-  // ===================================================
-  // TODO: remove below
-  // ===================================================
-
-  // TODO: remove => WORKS
-  const getCount = useCallback(async () => {
-    try {
-      const count = await counterContract.methods
-        .getCount()
-        .call({ from: account });
-      console.log("Count:", count);
-      return count;
-    } catch (err) {
-      console.log("ERROR: failed to call contract method (getCount)", { err });
-    }
-  }, [account, counterContract]);
-
-  // TODO: remove
-  const setCount = useCallback(
-    async (n = 0) => {
-      try {
-        await counterContract.methods
-          .setCount(n)
-          .send({ from: account, value: 1000000 })
-          .on("transactionHash", (hash) => console.log("TX hash", { hash }));
-      } catch (err) {
-        console.log("ERROR: failed to call contract method (setCount)", {
-          err,
-        });
-      }
-    },
-    [account, counterContract.methods]
-  );
-
-  // ===================================================
-  // TODO: remove above
-  // ===================================================
-
   // log every change of variable
   useEffect(() => {
     if (logChanges)
-      console.log("useMetaMask", {
-        getCount,
-        setCount,
+      console.debug("useMetaMask", {
         getBaseURI,
         setBaseURI,
         connectWallet,
         mint,
         network,
         account,
-        counterContract,
         contract,
       });
   }, [
@@ -183,12 +128,9 @@ export default function useMetaMask(logChanges) {
     setBaseURI,
     connectWallet,
     contract,
-    counterContract,
-    getCount,
     logChanges,
     mint,
     network,
-    setCount,
   ]);
 
   return {
@@ -196,8 +138,7 @@ export default function useMetaMask(logChanges) {
     network,
     account,
     mint,
-    getCount,
-    setCount,
+
     ...(isDev ? { getBaseURI, setBaseURI } : {}),
   };
 }

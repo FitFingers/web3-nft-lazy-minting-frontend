@@ -54,7 +54,7 @@ const getMushroomMetadata = async (req, res) => {
       ],
     };
 
-    console.log(metadata);
+    console.debug(metadata);
 
     res.statusCode = 200;
     res.json(metadata);

@@ -8,7 +8,7 @@ const defaultOptions = {
 };
 
 function log(verbose, ...msgs) {
-  if (verbose) console.log(...msgs);
+  if (verbose) console.debug(...msgs);
 }
 
 exports.default = async function (name, contract, opts, params) {
