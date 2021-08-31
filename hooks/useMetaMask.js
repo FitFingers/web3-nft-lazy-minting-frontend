@@ -1,5 +1,5 @@
 import Web3 from "web3";
-import { useCallback, useEffect, useMemo, useReducer } from "react";
+import { useCallback, useEffect, useReducer } from "react";
 import SHROOMS_ABI from "utils/abi";
 import COUNTER_ABI from "utils/counter-abi"; // TODO: remove
 
