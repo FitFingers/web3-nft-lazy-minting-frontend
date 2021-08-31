@@ -7,6 +7,8 @@ import MushroomBanner from "public/mushroom-banner.png";
 import useMetaMask from "hooks/useMetaMask";
 
 export default function Home() {
+  const { connectWallet, network, mint, getCount, setCount } = useMetaMask(true);
+
   const [{ mintCount, writeCount }, dispatch] = useReducer(
     (state, moreState) => ({ ...state, ...moreState }),
     { mintCount: 1, writeCount: 0 }
@@ -28,8 +30,6 @@ export default function Home() {
     () => dispatch({ writeCount: (writeCount + 1) % 10 }),
     [writeCount]
   );
-
-  const { connectWallet, mint, getCount, setCount } = useMetaMask(true);
 
   const callSetCount = useCallback(async () => {
     await setCount(writeCount);
