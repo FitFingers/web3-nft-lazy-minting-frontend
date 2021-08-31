@@ -1,16 +1,16 @@
 import Web3 from "web3";
-import { useCallback, useEffect, useReducer } from "react";
+import { useCallback, useEffect, useMemo, useReducer } from "react";
 import ABI from "utils/abi";
 import COUNTER_ABI from "utils/counter-abi"; // TODO: remove
 
 const COUNTER_CONTRACT_ADDRESS =
   process.env.NEXT_PUBLIC_COUNTER_CONTRACT_ADDRESS; // TODO: remove
 const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS;
-const MNEMONIC = process.env.NEXT_PUBLIC_MNEMONIC;
-const NODE_API_KEY =
-  process.env.NEXT_PUBLIC_INFURA_KEY || process.env.NEXT_PUBLIC_ALCHEMY_KEY;
-const OWNER_ADDRESS = process.env.NEXT_PUBLIC_OWNER_ADDRESS;
-const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
+// const MNEMONIC = process.env.NEXT_PUBLIC_MNEMONIC;
+// const NODE_API_KEY =
+//   process.env.NEXT_PUBLIC_INFURA_KEY || process.env.NEXT_PUBLIC_ALCHEMY_KEY;
+// const OWNER_ADDRESS = process.env.NEXT_PUBLIC_OWNER_ADDRESS;
+// const NETWORK = process.env.NEXT_PUBLIC_NETWORK;
 
 // ===================================================
 // METAMASK
@@ -80,13 +80,33 @@ export default function useMetaMask(logChanges) {
     dispatch({ contract, counterContract });
   }, [determineNetwork]);
 
+  const getPrice = useCallback(
+    async () => contract.methods.mushroomPrice().call({ from: account }),
+    [account, contract.methods]
+  );
+
+  const getMaxPurchase = useCallback(
+    async () => contract.methods.getMaxPurchase().call({ from: account }),
+    [account, contract.methods]
+  );
+
   // minting function
   const mint = useCallback(
     async (n = 1) => {
       try {
+        const maxPurchase = await getMaxPurchase();
+        if (n > maxPurchase)
+          throw new Error(
+            `Can only purchase a maximum of ${maxPurchase} at once`
+          );
+
+        const price = await getPrice();
         await contract.methods
           .mint(n)
-          .send()
+          .send({
+            from: account,
+            value: n * price,
+          })
           .on("transactionHash", (hash) =>
             console.log("DEBUG TX hash", { hash })
           );
@@ -94,7 +114,7 @@ export default function useMetaMask(logChanges) {
         console.log("ERROR: failed to call contract method (mint)", { err });
       }
     },
-    [contract.methods]
+    [account, contract.methods, getMaxPurchase, getPrice]
   );
 
   // ===================================================
