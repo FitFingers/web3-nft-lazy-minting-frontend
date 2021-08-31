@@ -1,4 +1,4 @@
-import traits from "resources/metadata/all-traits.json";
+import traits from "resources/all-traits.json";
 
 const getMushroomMetadata = async (req, res) => {
   const tokenId = req.query.id; // from query URL
