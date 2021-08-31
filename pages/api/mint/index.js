@@ -1,6 +1,6 @@
 const HDWalletProvider = require("truffle-hdwallet-provider");
 const web3 = require("web3");
-const SATOSHI_SHROOM_ABI = require("./satoshi-shroom-abi");
+const SATOSHI_SHROOM_ABI = require("utils/abi");
 const functions = require("./functions");
 
 const MNEMONIC = process.env.MNEMONIC;
