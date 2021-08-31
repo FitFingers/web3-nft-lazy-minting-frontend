@@ -9,15 +9,14 @@ const CONTRACT_ADDRESS = process.env.CONTRACT_ADDRESS;
 const OWNER_ADDRESS = process.env.OWNER_ADDRESS;
 const NETWORK = process.env.NETWORK;
 
-if (!MNEMONIC || !NODE_API_KEY || !OWNER_ADDRESS || !NETWORK) {
-  console.error(
-    "Please set a mnemonic, Alchemy/Infura key, owner, network, and contract address."
-  );
-  return;
-}
-
 async function setCount() {
   try {
+    if (!MNEMONIC || !NODE_API_KEY || !OWNER_ADDRESS || !NETWORK) {
+      throw new Error(
+        "Please set a mnemonic, Alchemy/Infura key, owner, network, and contract address."
+      );
+    }
+
     const network =
       NETWORK === "mainnet" || NETWORK === "live" ? "mainnet" : "rinkeby";
     const provider = new HDWalletProvider(
