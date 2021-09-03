@@ -10,7 +10,7 @@ const isDev = process.env.NODE_ENV === "development";
 
 export default function Home() {
   const { account, network, connectWallet, mint, getBaseURI, setBaseURI } =
-    useMetaMask(true);
+    useMetaMask();
 
   const readyInteractive = useMemo(
     () => account && network && network === "rinkeby",

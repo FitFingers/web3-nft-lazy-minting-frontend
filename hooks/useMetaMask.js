@@ -12,14 +12,15 @@ const SHROOMS_CONTRACT_ADDRESS =
 // ===================================================
 
 export default function useMetaMask(logChanges) {
-  const [{ account, network, contract, hash, tokenIndex }, dispatch] =
-    useReducer((state, moreState) => ({ ...state, ...moreState }), {
+  const [{ account, network, contract, hash }, dispatch] = useReducer(
+    (state, moreState) => ({ ...state, ...moreState }),
+    {
       account: null,
       network: null,
       hash: null,
-      tokenIndex: 0,
       contract: {},
-    });
+    }
+  );
 
   // init web3
   useEffect(() => {
@@ -54,10 +55,10 @@ export default function useMetaMask(logChanges) {
     dispatch({ contract });
   }, []);
 
-  // const getTokenIndex = useCallback(async () => {
-  //   const tokenIndex = await contract.methods.totalSupply();
-  //   dispatch({ tokenIndex });
-  // }, [contract.methods]);
+  const getTokenIndex = useCallback(async () => {
+    const tokenIndex = await contract.methods.totalSupply();
+    dispatch({ tokenIndex });
+  }, [contract.methods]);
 
   const getPrice = useCallback(
     async () => contract.methods.mushroomPrice().call({ from: account }),
@@ -112,8 +113,6 @@ export default function useMetaMask(logChanges) {
     [contract, account]
   );
 
-  const incrementTokenIndex = useCallback((idx) => dispatch({ tokenIndex: idx }), [])
-
   // ===================================================
   // NON-CALLABLE HOOKS THAT RUN AUTOMATICALLY
   // ===================================================
@@ -122,10 +121,7 @@ export default function useMetaMask(logChanges) {
   useHashConfirmation(hash);
 
   // assign a listener to a payable tx to get a receipt
-  useTransactionConfirmation(hash, tokenIndex, incrementTokenIndex);
-
-  // watch the total number of minted NFTs
-  useTokenIndex(contract, dispatch, account);
+  useTransactionConfirmation(hash, getTokenIndex);
 
   // log every change of variable
   useEffect(() => {
@@ -133,7 +129,6 @@ export default function useMetaMask(logChanges) {
       console.debug("useMetaMask", {
         account,
         getBaseURI,
-        tokenIndex,
         setBaseURI,
         connectWallet,
         mint,
@@ -142,7 +137,6 @@ export default function useMetaMask(logChanges) {
       });
   }, [
     account,
-    tokenIndex,
     getBaseURI,
     setBaseURI,
     connectWallet,
@@ -167,25 +161,6 @@ export default function useMetaMask(logChanges) {
 // NON-CALLABLE HOOKS
 // ===================================================
 
-// // TODO: is this 0-indexed? Will I get an OBOE?
-function useTokenIndex(contract, dispatch, account) {
-  useEffect(() => {
-    async function fetchIndex() {
-      try {
-        if (!contract?.methods) throw new Error("No contract methods defined");
-        const tokenIndex = await contract.methods
-          .totalSupply()
-          .call({ from: account });
-        console.log("DEBUG hook token", tokenIndex);
-        dispatch({ tokenIndex });
-      } catch (err) {
-        console.debug("Caught error in useToken", { err });
-      }
-    }
-    fetchIndex();
-  }, [contract.methods, dispatch, account]);
-}
-
 function useHashConfirmation(hash) {
   const prevHash = useRef(null);
   useEffect(() => {
@@ -195,15 +170,14 @@ function useHashConfirmation(hash) {
   }, [hash]);
 }
 
-function useTransactionConfirmation(hash, premintIndex, incrementTokenIndex) {
+function useTransactionConfirmation(hash, getTokenIndex) {
   const prevHash = useRef(null);
   useEffect(() => {
     async function awaitReceipt(recursive) {
       if (!hash || (!recursive && hash === prevHash.current)) return;
-      
+
       try {
         const txResult = await web3.eth.getTransactionReceipt(hash);
-        console.log("TX result:", txResult);
 
         // not ready => call again
         if (!txResult) {
@@ -217,15 +191,14 @@ function useTransactionConfirmation(hash, premintIndex, incrementTokenIndex) {
         if (!txResult.status) throw new Error("Transaction was unsuccessful");
 
         // successful transaction => update metadata and tokenIndex
-        const result = (
-          await fetch(`/api/opensea-metadata/refresh/${premintIndex + 1}`)
-        ).json();
-        console.log("TX result", { result });
-        incrementTokenIndex(premintIndex + 1);
+        const tokenIndex = await getTokenIndex();
+        (await fetch(`/api/opensea-metadata/refresh/${tokenIndex - 1}`)).json();
+
+        // TODO: add UI feedback
       } catch (err) {
         console.debug("Caught error in useTx", { err });
       }
     }
     awaitReceipt();
-  }, [hash, incrementTokenIndex, premintIndex]);
+  }, [getTokenIndex, hash]);
 }
