@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useReducer, useRef } from "react";
+import { useCallback, useMemo, useReducer } from "react";
 import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,25 +8,9 @@ import useMetaMask from "hooks/useMetaMask";
 
 const isDev = process.env.NODE_ENV === "development";
 
-function useHashConfirmation(hash) {
-  const hashRef = useRef(null);
-  useEffect(() => {
-    if (!hash || hash === hashRef.current) return;
-    alert(`TX hash: ${hash}`);
-    hashRef.current = hash;
-  }, [hash]);
-}
-
 export default function Home() {
-  const {
-    account,
-    network,
-    hash,
-    connectWallet,
-    mint,
-    getBaseURI,
-    setBaseURI,
-  } = useMetaMask();
+  const { account, network, connectWallet, mint, getBaseURI, setBaseURI } =
+    useMetaMask(true);
 
   const readyInteractive = useMemo(
     () => account && network && network === "rinkeby",
@@ -56,9 +40,6 @@ export default function Home() {
     const str = window.prompt();
     setBaseURI(str);
   }, [setBaseURI]);
-
-  // Alert the user when a TX hash is emitted
-  useHashConfirmation(hash);
 
   return (
     <div className={classes.container}>
