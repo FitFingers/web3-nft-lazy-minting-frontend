@@ -12,11 +12,12 @@ const SHROOMS_CONTRACT_ADDRESS =
 // ===================================================
 
 export default function useMetaMask(logChanges) {
-  const [{ account, network, contract }, dispatch] = useReducer(
+  const [{ account, network, contract, hash }, dispatch] = useReducer(
     (state, moreState) => ({ ...state, ...moreState }),
     {
       account: null,
       network: null,
+      hash: null,
       contract: {},
     }
   );
@@ -82,7 +83,7 @@ export default function useMetaMask(logChanges) {
             from: account,
             value: n * price,
           })
-          .on("transactionHash", (hash) => console.debug("TX hash", { hash }));
+          .on("transactionHash", (hash) => dispatch({ hash }));
       } catch (err) {
         console.debug("ERROR: failed to call contract method (mint)", { err });
       }
@@ -103,9 +104,7 @@ export default function useMetaMask(logChanges) {
       await contract.methods
         .setBaseURI(str)
         .send({ from: account, value: 1000000 })
-        .on("transactionHash", (hash) =>
-          console.debug("setBaseURI TX hash", { hash })
-        );
+        .on("transactionHash", (hash) => dispatch({ hash }));
     },
     [contract, account]
   );
@@ -138,6 +137,7 @@ export default function useMetaMask(logChanges) {
     network,
     account,
     mint,
+    hash,
 
     ...(isDev ? { getBaseURI, setBaseURI } : {}),
   };
