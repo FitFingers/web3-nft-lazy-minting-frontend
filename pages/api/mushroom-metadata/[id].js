@@ -44,11 +44,11 @@ const getMushroomMetadata = async (req, res) => {
       ],
     };
 
-    res.statusCode = 200;
-    res.json(metadata);
+    res.status(200).json(metadata);
   } else {
-    res.statuscode = 404;
-    res.json({ error: "The mushroom you requested is out of range" });
+    res
+      .status(404)
+      .json({ error: "The mushroom you requested is out of range" });
   }
 };
 
