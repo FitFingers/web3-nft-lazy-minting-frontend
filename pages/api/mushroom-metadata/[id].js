@@ -1,60 +1,48 @@
-import traits from "resources/all-traits.json";
-
 const getMushroomMetadata = async (req, res) => {
-  const tokenId = req.query.id; // from query URL
+  const { id: tokenId } = req.query;
   const totalMushrooms = 420;
 
   if (parseInt(tokenId) < totalMushrooms) {
     const tokenName = `#${tokenId}`;
-    const mushroom = traits[parseInt(tokenId)];
-    // const mushroom = traits[ Math.floor(Math.random() * 8888) ] // for testing on rinkeby
 
-    // CHECK OPENSEA METADATA STANDARD DOCUMENTATION https://docs.opensea.io/docs/metadata-standards
-    let metadata = {};
-    metadata = {
+    const metadata = {
       name: tokenName,
       description: "Satoshi Shrooms",
       tokenId: parseInt(tokenId),
-      image: `ipfs://QmUeE4LLjuMMAim96sQT15k7QmjnP8WcoqHxvs2gb4ms8h/${tokenId}.png`, // REAL
-      // image: "ipfs://QmUeE4LLjuMMAim96sQT15k7QmjnP8WcoqHxvs2gb4ms8h/", // REAL
-      // image: `https://gateway.pinata.cloud/ipfs/QmUeE4LLjuMMAim96sQT15k7QmjnP8WcoqHxvs2gb4ms8h/${tokenId}.png`,
-      // image:
-      //   "https://image.shutterstock.com/image-vector/amanita-mushroom-pixel-art-vector-600w-1075018124.jpg", // FAKE
-      // image: `https://gateway.pinata.cloud/ipfs/${mushroom.imageIPFS}`,
+      image:
+        "https://gateway.pinata.cloud/ipfs/QmVhugte1qfJknwFJ6RkEULAUxoH5uxQjVddAj9aeBoJnT",
       external_url: "https://satoshishrooms.club",
       attributes: [
         {
           trait_type: "Background",
-          value: mushroom.Background,
+          value: "Unknown",
         },
         {
           trait_type: "Color",
-          value: mushroom.Color,
+          value: "Unknown",
         },
         {
           trait_type: "Spots",
-          value: mushroom.Spots,
+          value: "Unknown",
         },
         {
           trait_type: "Environment",
-          value: mushroom.Environment,
+          value: "Unknown",
         },
         {
           trait_type: "Toxicity",
-          value: mushroom.Toxicity,
+          value: "Unknown",
         },
         {
           trait_type: "Species",
-          value: mushroom.Species,
+          value: "Unknown",
         },
         {
           trait_type: "Magic",
-          value: mushroom.Magic,
+          value: "Unknown",
         },
       ],
     };
-
-    console.debug(metadata);
 
     res.statusCode = 200;
     res.json(metadata);
