@@ -14,6 +14,10 @@ const ETHERSCAN = {
 const SHROOMS_CONTRACT_ADDRESS =
   process.env.NEXT_PUBLIC_SHROOMS_CONTRACT_ADDRESS;
 
+async function sleep(ms) {
+  await new Promise((res) => setTimeout(res, ms));
+}
+
 // ===================================================
 // METAMASK
 // ===================================================
@@ -190,11 +194,13 @@ function useHashConfirmation(hash) {
 function useTransactionConfirmation(hash, getTokenIndex) {
   const { handleOpen } = useFeedback();
   const prevHash = useRef(null); // previous TX hash (prevent run unless new TX)
+  const tokenIndex = useRef(null); // current number of NFTs
 
   // Monitor transaction state
   useEffect(() => {
     async function awaitReceipt(recursive) {
       if (!hash || (!recursive && hash === prevHash.current)) return;
+      if (!recursive) tokenIndex.current = await getTokenIndex();
 
       try {
         // check if block was already mined
@@ -202,7 +208,7 @@ function useTransactionConfirmation(hash, getTokenIndex) {
 
         // if block not mined, call function again
         if (!txResult) {
-          console.log("Awaiting TX confirmation...");
+          console.debug("Awaiting TX confirmation...");
           return new Promise((res) =>
             setTimeout(() => res(awaitReceipt(true)), 1000)
           );
@@ -212,13 +218,18 @@ function useTransactionConfirmation(hash, getTokenIndex) {
         if (!txResult.status) throw new Error("Transaction was unsuccessful");
 
         const tokenId = await getTokenIndex();
-        console.log("DEBUG TX", { tokenId });
-        const response = await fetch(
-          `/api/opensea-metadata/refresh/${tokenId - 1}`,
-          { method: "GET" }
+        const tokenIds = [...Array(tokenId - tokenIndex.current)].map(
+          (_, i) => Number(tokenIndex.current) + i
         );
-        console.log("DEBUG fetch", { response });
-        console.log("DEBUG res", await response.json());
+
+        // await sleep(5000);
+
+        for await (const id of tokenIds) {
+          await fetch(`/api/opensea-metadata/refresh/${id}`, {
+            method: "GET",
+          });
+          await sleep(1000);
+        }
 
         handleOpen(
           "success",

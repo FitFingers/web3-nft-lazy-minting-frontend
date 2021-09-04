@@ -14,14 +14,11 @@ export default async function refreshMetadata(req, res) {
     if (!CONTRACT_ADDRESS) throw new Error("No contract address provided");
 
     // Call the API to refresh this token's metadata
-    const response = await fetch(`${REFRESH_URL}${tokenId}`, {
-      method: "GET",
-    });
+    const refreshUrl = `${REFRESH_URL}${tokenId}/?force_update=true`;
+    const response = await fetch(refreshUrl, { method: "GET" });
     const result = await response.json();
-    console.log("Fetch result", { result });
 
-    // return success
-    res.status(200).json({ success: true });
+    res.status(200).json({ success: result.token_id });
   } catch (err) {
     console.debug("Caught error", { err });
     res.status(500).json({ success: false, error: err });
