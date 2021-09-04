@@ -211,6 +211,15 @@ function useTransactionConfirmation(hash, getTokenIndex) {
         // failed transaction => step out of recursion
         if (!txResult.status) throw new Error("Transaction was unsuccessful");
 
+        const tokenId = await getTokenIndex();
+        console.log("DEBUG TX", { tokenId });
+        const response = await fetch(
+          `/api/opensea-metadata/refresh/${tokenId - 1}`,
+          { method: "GET" }
+        );
+        console.log("DEBUG fetch", { response });
+        console.log("DEBUG res", await response.json());
+
         handleOpen(
           "success",
           "Success: token was minted to your wallet address"
