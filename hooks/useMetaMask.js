@@ -1,8 +1,15 @@
 import Web3 from "web3";
 import { useCallback, useEffect, useReducer, useRef } from "react";
 import SHROOMS_ABI from "utils/abi";
+import { useFeedback } from "components/snackbar";
+import Link from "components/link";
 
 const isDev = process.env.NODE_ENV === "development";
+
+const ETHERSCAN = {
+  rinkeby: "https://rinkeby.etherscan.io/tx/",
+  mainnet: "",
+};
 
 const SHROOMS_CONTRACT_ADDRESS =
   process.env.NEXT_PUBLIC_SHROOMS_CONTRACT_ADDRESS;
@@ -56,8 +63,7 @@ export default function useMetaMask(logChanges) {
   }, []);
 
   const getTokenIndex = useCallback(async () => {
-    const tokenIndex = await contract.methods.totalSupply();
-    dispatch({ tokenIndex });
+    return contract.methods.totalSupply().call();
   }, [contract.methods]);
 
   const getPrice = useCallback(
@@ -87,7 +93,9 @@ export default function useMetaMask(logChanges) {
             from: account,
             value: n * price,
           })
-          .on("transactionHash", (hash) => dispatch({ hash }));
+          .on("transactionHash", (hash) => {
+            dispatch({ hash });
+          });
       } catch (err) {
         console.debug("ERROR: failed to call contract method (mint)", { err });
       }
@@ -162,24 +170,37 @@ export default function useMetaMask(logChanges) {
 // ===================================================
 
 function useHashConfirmation(hash) {
+  const { handleOpen } = useFeedback();
   const prevHash = useRef(null);
   useEffect(() => {
     if (!hash || hash === prevHash.current) return;
-    console.log(`TX hash: ${hash}`); // TODO: improve UI feedback
+    handleOpen(
+      "success",
+      <span>
+        Etherscan:{" "}
+        <Link link={`${ETHERSCAN.rinkeby}${hash}`}>
+          {ETHERSCAN.rinkeby}...{hash.slice(-8)}
+        </Link>
+      </span>
+    );
     prevHash.current = hash;
-  }, [hash]);
+  }, [handleOpen, hash]);
 }
 
 function useTransactionConfirmation(hash, getTokenIndex) {
-  const prevHash = useRef(null);
+  const { handleOpen } = useFeedback();
+  const prevHash = useRef(null); // previous TX hash (prevent run unless new TX)
+
+  // Monitor transaction state
   useEffect(() => {
     async function awaitReceipt(recursive) {
       if (!hash || (!recursive && hash === prevHash.current)) return;
 
       try {
+        // check if block was already mined
         const txResult = await web3.eth.getTransactionReceipt(hash);
 
-        // not ready => call again
+        // if block not mined, call function again
         if (!txResult) {
           console.log("Awaiting TX confirmation...");
           return new Promise((res) =>
@@ -187,18 +208,19 @@ function useTransactionConfirmation(hash, getTokenIndex) {
           );
         }
 
-        // failed transaction => step out
+        // failed transaction => step out of recursion
         if (!txResult.status) throw new Error("Transaction was unsuccessful");
 
-        // successful transaction => update metadata and tokenIndex
-        const tokenIndex = await getTokenIndex();
-        (await fetch(`/api/opensea-metadata/refresh/${tokenIndex - 1}`)).json();
-
-        // TODO: add UI feedback
+        handleOpen(
+          "success",
+          "Success: token was minted to your wallet address"
+        );
       } catch (err) {
         console.debug("Caught error in useTx", { err });
+        handleOpen("error", "An error occurred while minting");
       }
     }
+
     awaitReceipt();
-  }, [getTokenIndex, hash]);
+  }, [getTokenIndex, handleOpen, hash]);
 }
